@@ -1,21 +1,47 @@
+//
+// https://thispointer.com//c11-multithreading-part-8-stdfuture-stdpromise-and-returning-values-from-thread/
+//
 // FuturePromise.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include "pch.h"
 #include <iostream>
-
+#include <string>
+#include <chrono>
+#include <thread>
+#include <future>
+using namespace std::chrono;
+std::string fetchDataFromDB(std::string recvdData)
+{
+    // Make sure that function takes 5 seconds to complete
+    std::this_thread::sleep_for(seconds(5));
+    //Do stuff like creating DB Connection and fetching Data
+    return "DB_" + recvdData;
+}
+std::string fetchDataFromFile(std::string recvdData)
+{
+    // Make sure that function takes 5 seconds to complete
+    std::this_thread::sleep_for(seconds(5));
+    //Do stuff like fetching Data File
+    return "File_" + recvdData;
+}
 int main()
 {
-    std::cout << "Hello World!\n"; 
+    // Get Start Time
+    system_clock::time_point start = system_clock::now();
+    std::future<std::string> resultFromDB = std::async(std::launch::async, fetchDataFromDB, "Data");
+    //Fetch Data from File
+    std::string fileData = fetchDataFromFile("Data");
+    //Fetch Data from DB
+    // Will block till data is available in future<std::string> object.
+    std::string dbData = resultFromDB.get();
+    // Get End Time
+    auto end = system_clock::now();
+    auto diff = duration_cast <std::chrono::seconds> (end - start).count();
+    std::cout << "Total Time Taken = " << diff << " Seconds" << std::endl;
+    //Combine The Data
+    std::string data = dbData + " :: " + fileData;
+    //Printing the combined Data
+    std::cout << "Data = " << data << std::endl;
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
