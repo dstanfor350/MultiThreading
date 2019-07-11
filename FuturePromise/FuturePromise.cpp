@@ -10,7 +10,9 @@
 #include <chrono>
 #include <thread>
 #include <future>
+
 using namespace std::chrono;
+
 std::string fetchDataFromDB(std::string recvdData)
 {
     // Make sure that function takes 5 seconds to complete
